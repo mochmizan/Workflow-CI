@@ -26,9 +26,14 @@ jobs:
       # 3. Install MLflow dan dependencies
       - name: Install Dependencies
         run: |
-          pip install --upgrade pip
-          pip install mlflow pandas numpy scikit-learn \
-                      matplotlib seaborn conda-pack
+          python -m pip install --upgrade pip
+          pip install mlflow
+          pip install pandas
+          pip install numpy
+          pip install scikit-learn
+          pip install matplotlib
+          pip install seaborn
+          pip install conda-pack
 
       # 4. Setup Miniconda (diperlukan mlflow run dengan conda)
       - name: Setup Miniconda
