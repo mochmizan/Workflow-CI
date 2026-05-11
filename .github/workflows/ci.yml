@@ -1,0 +1,105 @@
+name: CI - Train, Save & Dockerize Model
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'MLProject/**'
+  workflow_dispatch:
+
+jobs:
+  train-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout kode
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2. Setup Python
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+
+      # 3. Install MLflow dan dependencies
+      - name: Install Dependencies
+        run: |
+          pip install --upgrade pip
+          pip install mlflow==2.19.0 pandas numpy scikit-learn \
+                      matplotlib seaborn conda-pack
+
+      # 4. Setup Miniconda (diperlukan mlflow run dengan conda)
+      - name: Setup Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-activate-base: true
+          activate-environment: ''
+
+      # 5. Jalankan MLflow Project
+      - name: Run MLflow Project
+        run: |
+          cd MLProject
+          mlflow run . -e main --env-manager=local
+        shell: bash -el {0}
+
+      # 6. Verifikasi model artifact
+      - name: Verify Model Artifact
+        run: |
+          echo "=== Model artifact contents ==="
+          ls -lh MLProject/model_artifact/
+          cat MLProject/run_id.txt
+
+      # 7. Upload model sebagai GitHub Actions Artifact
+      - name: Upload Model Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: iris-model-${{ github.run_number }}
+          path: |
+            MLProject/model_artifact/
+            MLProject/run_id.txt
+            MLProject/confusion_matrix.png
+            MLProject/feature_importance.png
+          retention-days: 90
+
+      # 8. Commit model artifact ke repository (GitHub storage)
+      - name: Commit Model to Repository
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Actions"
+          git add MLProject/model_artifact/ || true
+          git add MLProject/run_id.txt || true
+          git add MLProject/confusion_matrix.png || true
+          git add MLProject/feature_importance.png || true
+          git diff --staged --quiet || git commit -m "ci: update model artifact [run #${{ github.run_number }}]"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 9. Login ke Docker Hub
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # 10. Build Docker Image menggunakan mlflow models build-docker
+      - name: Build Docker Image
+        run: |
+          mlflow models build-docker \
+            --model-uri MLProject/model_artifact \
+            --name sansbo/iris-classifier
+
+      # 11. Tag dengan run number
+      - name: Tag Docker Image
+        run: |
+          docker tag sansbo/iris-classifier:latest \
+                     sansbo/iris-classifier:run-${{ github.run_number }}
+
+      # 12. Push ke Docker Hub
+      - name: Push to Docker Hub
+        run: |
+          docker push sansbo/iris-classifier:latest
+          docker push sansbo/iris-classifier:run-${{ github.run_number }}
+          echo "Docker image pushed: sansbo/iris-classifier:latest"
