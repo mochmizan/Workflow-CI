@@ -6,7 +6,6 @@ on:
       - main
     paths:
       - 'MLProject/**'
-      - '.github/workflows/**'
   workflow_dispatch:
 
 jobs:
@@ -24,24 +23,26 @@ jobs:
         with:
           python-version: '3.12.7'
 
-      # 3. Install semua dependencies (MLflow + project deps)
+      # 3. Install MLflow dan dependencies
       - name: Install Dependencies
         run: |
           pip install --upgrade pip
-          pip install \
-            mlflow==2.19.0 \
-            pandas==2.2.3 \
-            numpy==1.26.4 \
-            scikit-learn==1.5.2 \
-            matplotlib==3.9.2 \
-            seaborn==0.13.2
+          pip install mlflow pandas numpy scikit-learn \
+                      matplotlib seaborn conda-pack
 
-      # 4. Jalankan MLflow Project (--env-manager=local pakai env saat ini)
+      # 4. Setup Miniconda (diperlukan mlflow run dengan conda)
+      - name: Setup Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-activate-base: true
+          activate-environment: ''
+
+      # 5. Jalankan MLflow Project
       - name: Run MLflow Project
         run: |
           cd MLProject
-          rm -rf model_artifact/  # Menghapus artifact lama agar fungsi save_model tidak error
-          mlflow run . -e main --env-manager=local --experiment-name Iris_CI_Pipeline
+          mlflow run . -e main --env-manager=local
+        shell: bash -el {0}
 
       # 6. Verifikasi model artifact
       - name: Verify Model Artifact
