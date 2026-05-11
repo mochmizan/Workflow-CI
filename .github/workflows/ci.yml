@@ -40,7 +40,8 @@ jobs:
       - name: Run MLflow Project
         run: |
           cd MLProject
-          mlflow run . -e main --env-manager=local
+          rm -rf model_artifact/  # Menghapus artifact lama agar fungsi save_model tidak error
+          mlflow run . -e main --env-manager=local --experiment-name Iris_CI_Pipeline
 
       # 6. Verifikasi model artifact
       - name: Verify Model Artifact
