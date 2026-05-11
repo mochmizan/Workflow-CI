@@ -23,27 +23,32 @@ jobs:
         with:
           python-version: '3.12.7'
 
-      # 3. Install MLflow dan dependencies
+      # 3. Install semua dependencies (MLflow + project deps)
       - name: Install Dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install mlflow==2.19.0 pandas numpy scikit-learn \
-                      matplotlib seaborn conda-pack
+          pip install --upgrade pip
+          pip install \
+            mlflow==2.19.0 \
+            pandas==2.2.3 \
+            numpy==1.26.4 \
+            scikit-learn==1.5.2 \
+            matplotlib==3.9.2 \
+            seaborn==0.13.2
 
-      # 4. Jalankan MLflow Project (Langkah Setup Miniconda telah dihapus)
+      # 4. Jalankan MLflow Project (--env-manager=local pakai env saat ini)
       - name: Run MLflow Project
         run: |
           cd MLProject
           mlflow run . -e main --env-manager=local
 
-      # 5. Verifikasi model artifact
+      # 6. Verifikasi model artifact
       - name: Verify Model Artifact
         run: |
           echo "=== Model artifact contents ==="
           ls -lh MLProject/model_artifact/
           cat MLProject/run_id.txt
 
-      # 6. Upload model sebagai GitHub Actions Artifact
+      # 7. Upload model sebagai GitHub Actions Artifact
       - name: Upload Model Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -55,7 +60,7 @@ jobs:
             MLProject/feature_importance.png
           retention-days: 90
 
-      # 7. Commit model artifact ke repository (GitHub storage)
+      # 8. Commit model artifact ke repository (GitHub storage)
       - name: Commit Model to Repository
         run: |
           git config --local user.email "action@github.com"
@@ -69,27 +74,27 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # 8. Login ke Docker Hub
+      # 9. Login ke Docker Hub
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # 9. Build Docker Image menggunakan mlflow models build-docker
+      # 10. Build Docker Image menggunakan mlflow models build-docker
       - name: Build Docker Image
         run: |
           mlflow models build-docker \
             --model-uri MLProject/model_artifact \
             --name sansbo/iris-classifier
 
-      # 10. Tag dengan run number
+      # 11. Tag dengan run number
       - name: Tag Docker Image
         run: |
           docker tag sansbo/iris-classifier:latest \
-                    sansbo/iris-classifier:run-${{ github.run_number }}
+                     sansbo/iris-classifier:run-${{ github.run_number }}
 
-      # 11. Push ke Docker Hub
+      # 12. Push ke Docker Hub
       - name: Push to Docker Hub
         run: |
           docker push sansbo/iris-classifier:latest
