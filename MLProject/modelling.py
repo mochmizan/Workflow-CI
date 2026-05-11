@@ -1,12 +1,14 @@
 """
-modelling.py  –  Kriteria 2 + Kriteria 3 (CI-ready)
+modelling.py  –  Kriteria 2 + Kriteria 3 (CI-ready, fixed for mlflow run)
 - MLflow autolog (local)
-- Setelah training: export model ke model_artifact/
+- Compatible dengan `mlflow run .` (tidak bentrok active run)
+- Export model ke model_artifact/
 - Menulis run_id.txt
 - Generate confusion_matrix.png & feature_importance.png
 
 Cara menjalankan (dari folder MLProject/):
-    python modelling.py
+    python modelling.py          # lokal manual
+    mlflow run . -e main --env-manager=local   # via MLflow Project
 """
 
 import os
@@ -56,62 +58,71 @@ def train_random_forest(X_train, X_test, y_train, y_test, feature_cols):
     print("\nTraining Random Forest dengan MLflow autolog...")
     mlflow.sklearn.autolog()
 
-    with mlflow.start_run(run_name="RandomForest_CI"):
-        model = RandomForestClassifier(n_estimators=100, random_state=42)
-        model.fit(X_train, y_train)
+    # ── FIX: Gunakan active run dari `mlflow run`, jangan start_run baru ──
+    # `mlflow run .` sudah membuat run aktif. Kita set run_name saja.
+    if mlflow.active_run() is None:
+        # Mode lokal manual (bukan via mlflow run)
+        run = mlflow.start_run(run_name="RandomForest_CI")
+    else:
+        # Mode CI via `mlflow run` — run sudah aktif
+        run = mlflow.active_run()
+        print(f"  [CI mode] Menggunakan active run: {run.info.run_id}")
 
-        y_pred = model.predict(X_test)
-        acc  = accuracy_score(y_test, y_pred)
-        f1   = f1_score(y_test, y_pred, average='weighted')
-        prec = precision_score(y_test, y_pred, average='weighted')
-        rec  = recall_score(y_test, y_pred, average='weighted')
+    model = RandomForestClassifier(n_estimators=100, random_state=42)
+    model.fit(X_train, y_train)
 
-        print(f"  Accuracy:  {acc:.4f}")
-        print(f"  F1 Score:  {f1:.4f}")
-        print(f"  Precision: {prec:.4f}")
-        print(f"  Recall:    {rec:.4f}")
+    y_pred = model.predict(X_test)
+    acc  = accuracy_score(y_test, y_pred)
+    f1   = f1_score(y_test, y_pred, average='weighted')
+    prec = precision_score(y_test, y_pred, average='weighted')
+    rec  = recall_score(y_test, y_pred, average='weighted')
 
-        # ── Generate artifacts untuk CI ──
-        cm = confusion_matrix(y_test, y_pred)
-        fig, ax = plt.subplots(figsize=(7, 6))
-        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
-                    xticklabels=CLASS_NAMES, yticklabels=CLASS_NAMES, ax=ax)
-        ax.set_title('Confusion Matrix - Random Forest', fontsize=13, fontweight='bold')
-        ax.set_xlabel('Predicted Label')
-        ax.set_ylabel('True Label')
-        plt.tight_layout()
-        plt.savefig('confusion_matrix.png', dpi=100, bbox_inches='tight')
-        plt.close(fig)
-        print("  [artifact] confusion_matrix.png saved")
+    print(f"  Accuracy:  {acc:.4f}")
+    print(f"  F1 Score:  {f1:.4f}")
+    print(f"  Precision: {prec:.4f}")
+    print(f"  Recall:    {rec:.4f}")
 
-        importances = model.feature_importances_
-        indices = np.argsort(importances)[::-1]
-        sorted_features = [feature_cols[i] for i in indices]
-        sorted_importance = importances[indices]
+    # ── Generate artifacts untuk CI ──
+    cm = confusion_matrix(y_test, y_pred)
+    fig, ax = plt.subplots(figsize=(7, 6))
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
+                xticklabels=CLASS_NAMES, yticklabels=CLASS_NAMES, ax=ax)
+    ax.set_title('Confusion Matrix - Random Forest', fontsize=13, fontweight='bold')
+    ax.set_xlabel('Predicted Label')
+    ax.set_ylabel('True Label')
+    plt.tight_layout()
+    plt.savefig('confusion_matrix.png', dpi=100, bbox_inches='tight')
+    plt.close(fig)
+    print("  [artifact] confusion_matrix.png saved")
 
-        fig, ax = plt.subplots(figsize=(8, 5))
-        bars = ax.barh(range(len(sorted_features)), sorted_importance[::-1],
-                       color='#2196F3', edgecolor='white')
-        ax.set_yticks(range(len(sorted_features)))
-        ax.set_yticklabels(sorted_features[::-1])
-        ax.set_xlabel('Importance Score')
-        ax.set_title('Feature Importance - Random Forest', fontsize=13, fontweight='bold')
-        for bar, val in zip(bars, sorted_importance[::-1]):
-            ax.text(val + 0.001, bar.get_y() + bar.get_height()/2,
-                    f'{val:.4f}', va='center', fontsize=10)
-        plt.tight_layout()
-        plt.savefig('feature_importance.png', dpi=100, bbox_inches='tight')
-        plt.close(fig)
-        print("  [artifact] feature_importance.png saved")
+    importances = model.feature_importances_
+    indices = np.argsort(importances)[::-1]
+    sorted_features = [feature_cols[i] for i in indices]
+    sorted_importance = importances[indices]
 
-        # ── Export model ke folder model_artifact ──
-        mlflow.sklearn.save_model(model, path='model_artifact')
-        print("  [artifact] model_artifact/ saved")
+    fig, ax = plt.subplots(figsize=(8, 5))
+    bars = ax.barh(range(len(sorted_features)), sorted_importance[::-1],
+                   color='#2196F3', edgecolor='white')
+    ax.set_yticks(range(len(sorted_features)))
+    ax.set_yticklabels(sorted_features[::-1])
+    ax.set_xlabel('Importance Score')
+    ax.set_title('Feature Importance - Random Forest', fontsize=13, fontweight='bold')
+    for bar, val in zip(bars, sorted_importance[::-1]):
+        ax.text(val + 0.001, bar.get_y() + bar.get_height()/2,
+                f'{val:.4f}', va='center', fontsize=10)
+    plt.tight_layout()
+    plt.savefig('feature_importance.png', dpi=100, bbox_inches='tight')
+    plt.close(fig)
+    print("  [artifact] feature_importance.png saved")
 
-        run_id = mlflow.active_run().info.run_id
-        with open('run_id.txt', 'w') as f:
-            f.write(run_id)
-        print(f"  [artifact] run_id.txt saved ({run_id})")
+    # ── Export model ke folder model_artifact ──
+    mlflow.sklearn.save_model(model, path='model_artifact')
+    print("  [artifact] model_artifact/ saved")
+
+    run_id = run.info.run_id
+    with open('run_id.txt', 'w') as f:
+        f.write(run_id)
+    print(f"  [artifact] run_id.txt saved ({run_id})")
 
     mlflow.sklearn.autolog(disable=True)
     return model, run_id
