@@ -19,6 +19,9 @@ import mlflow.sklearn
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
+if not os.environ.get('MLFLOW_RUN_ID'):
+    mlflow.set_tracking_uri(MLFLOW_URI)
+    mlflow.set_experiment(EXPERIMENT)
 
 # ─── Konfigurasi ───────────────────────────────────────────────────────────────
 TRAIN_PATH  = os.path.join('iris_preprocessing', 'train.csv')
@@ -26,9 +29,6 @@ TEST_PATH   = os.path.join('iris_preprocessing', 'test.csv')
 TARGET_COL  = 'species'
 EXPERIMENT  = 'Iris_Classification_Basic'
 MLFLOW_URI  = 'mlruns'   # local
-
-mlflow.set_tracking_uri(MLFLOW_URI)
-mlflow.set_experiment(EXPERIMENT)
 
 # ─── Load Data ──────────────────────────────────────────────────────────────────
 def load_data():
@@ -48,7 +48,9 @@ def train_logistic_regression(X_train, X_test, y_train, y_test):
     print("\n[1/2] Training Logistic Regression...")
     mlflow.sklearn.autolog()
 
-    with mlflow.start_run(run_name="LogisticRegression_autolog", nested=True):
+    from contextlib import nullcontext
+    _ctx = nullcontext() if mlflow.active_run() else mlflow.start_run(run_name="LogisticRegression_autolog")
+    with _ctx:
         model = LogisticRegression(max_iter=200, random_state=42)
         model.fit(X_train, y_train)
 
@@ -71,7 +73,9 @@ def train_random_forest(X_train, X_test, y_train, y_test):
     print("\n[2/2] Training Random Forest...")
     mlflow.sklearn.autolog()
 
-    with mlflow.start_run(run_name="RandomForest_autolog", nested=True):
+    from contextlib import nullcontext
+    _ctx = nullcontext() if mlflow.active_run() else mlflow.start_run(run_name="RandomForest_autolog")
+    with _ctx:
         model = RandomForestClassifier(n_estimators=100, random_state=42)
         model.fit(X_train, y_train)
 
