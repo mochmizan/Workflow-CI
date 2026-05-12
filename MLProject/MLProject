@@ -1,4 +1,4 @@
-name: wine_classifier
+name: breast_cancer_classifier
 
 conda_env: conda.yaml
 

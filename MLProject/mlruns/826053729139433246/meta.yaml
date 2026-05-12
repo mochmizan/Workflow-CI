@@ -1,0 +1,8 @@
+artifact_location: file:D:/Coding/Python/finalitas/New folder (2)/Workflow-CI/MLProject/mlruns/826053729139433246
+creation_time: 1778600975796
+experiment_id: '826053729139433246'
+last_update_time: 1778600975796
+lifecycle_stage: active
+name: BreastCancer_Classification_Basic
+trace_location: null
+workspace: default

@@ -1,6 +1,6 @@
 """
 modelling.py  –  Kriteria 2 (Basic)
-Melatih model klasifikasi Wine menggunakan MLflow autolog.
+Melatih model klasifikasi Breast Cancer menggunakan MLflow autolog.
 Tracking UI disimpan lokal di ./mlruns
 
 Cara menjalankan (dari folder Membangun_model/):
@@ -19,16 +19,16 @@ import mlflow.sklearn
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
+# ─── Konfigurasi ───────────────────────────────────────────────────────────────
+TRAIN_PATH  = os.path.join('cancer_preprocessing', 'train.csv')
+TEST_PATH   = os.path.join('cancer_preprocessing', 'test.csv')
+TARGET_COL  = 'target'
+EXPERIMENT  = 'BreastCancer_Classification_Basic'
+MLFLOW_URI  = 'mlruns'   # local
+
 if not os.environ.get('MLFLOW_RUN_ID'):
     mlflow.set_tracking_uri(MLFLOW_URI)
     mlflow.set_experiment(EXPERIMENT)
-
-# ─── Konfigurasi ───────────────────────────────────────────────────────────────
-TRAIN_PATH  = os.path.join('wine_preprocessing', 'train.csv')
-TEST_PATH   = os.path.join('wine_preprocessing', 'test.csv')
-TARGET_COL  = 'quality_label'
-EXPERIMENT  = 'Wine_Classification_Basic'
-MLFLOW_URI  = 'mlruns'   # local
 
 # ─── Load Data ──────────────────────────────────────────────────────────────────
 def load_data():

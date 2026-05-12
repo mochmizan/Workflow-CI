@@ -1,0 +1,14 @@
+artifact_uri: file:D:/Coding/Python/finalitas/New folder (2)/Workflow-CI/MLProject/mlruns/826053729139433246/39da554f9f6f4c5da9d160057dca4ec7/artifacts
+end_time: 1778600988472
+entry_point_name: ''
+experiment_id: '826053729139433246'
+lifecycle_stage: active
+run_id: 39da554f9f6f4c5da9d160057dca4ec7
+run_name: LogisticRegression_autolog
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1778600981034
+status: 3
+tags: []
+user_id: Mizan

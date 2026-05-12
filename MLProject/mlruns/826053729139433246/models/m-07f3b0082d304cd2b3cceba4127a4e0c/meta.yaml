@@ -1,0 +1,10 @@
+artifact_location: file:D:/Coding/Python/finalitas/New folder (2)/Workflow-CI/MLProject/mlruns/826053729139433246/models/m-07f3b0082d304cd2b3cceba4127a4e0c/artifacts
+creation_timestamp: 1778600989010
+experiment_id: '826053729139433246'
+last_updated_timestamp: 1778600993821
+model_id: m-07f3b0082d304cd2b3cceba4127a4e0c
+model_type: null
+name: model
+source_run_id: d46b6ca303ac48239df218be78cd474d
+status: 2
+status_message: null

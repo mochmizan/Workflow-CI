@@ -1,0 +1,30 @@
+digest: a4ff529c
+name: dataset
+profile: '{"num_rows": 455, "num_elements": 13650}'
+schema: '{"mlflow_colspec": [{"type": "double", "name": "mean_radius", "required":
+  true}, {"type": "double", "name": "mean_texture", "required": true}, {"type": "double",
+  "name": "mean_perimeter", "required": true}, {"type": "double", "name": "mean_area",
+  "required": true}, {"type": "double", "name": "mean_smoothness", "required": true},
+  {"type": "double", "name": "mean_compactness", "required": true}, {"type": "double",
+  "name": "mean_concavity", "required": true}, {"type": "double", "name": "mean_concave_points",
+  "required": true}, {"type": "double", "name": "mean_symmetry", "required": true},
+  {"type": "double", "name": "mean_fractal_dimension", "required": true}, {"type":
+  "double", "name": "radius_error", "required": true}, {"type": "double", "name":
+  "texture_error", "required": true}, {"type": "double", "name": "perimeter_error",
+  "required": true}, {"type": "double", "name": "area_error", "required": true}, {"type":
+  "double", "name": "smoothness_error", "required": true}, {"type": "double", "name":
+  "compactness_error", "required": true}, {"type": "double", "name": "concavity_error",
+  "required": true}, {"type": "double", "name": "concave_points_error", "required":
+  true}, {"type": "double", "name": "symmetry_error", "required": true}, {"type":
+  "double", "name": "fractal_dimension_error", "required": true}, {"type": "double",
+  "name": "worst_radius", "required": true}, {"type": "double", "name": "worst_texture",
+  "required": true}, {"type": "double", "name": "worst_perimeter", "required": true},
+  {"type": "double", "name": "worst_area", "required": true}, {"type": "double", "name":
+  "worst_smoothness", "required": true}, {"type": "double", "name": "worst_compactness",
+  "required": true}, {"type": "double", "name": "worst_concavity", "required": true},
+  {"type": "double", "name": "worst_concave_points", "required": true}, {"type": "double",
+  "name": "worst_symmetry", "required": true}, {"type": "double", "name": "worst_fractal_dimension",
+  "required": true}]}'
+source: '{"tags": {"mlflow.user": "Mizan", "mlflow.source.name": "modelling.py", "mlflow.source.type":
+  "LOCAL", "mlflow.source.git.commit": "bb4d5dbbaa33c9aac77de3544c53b8a52ece2a0f"}}'
+source_type: code

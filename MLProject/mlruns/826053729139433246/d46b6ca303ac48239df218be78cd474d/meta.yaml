@@ -1,0 +1,14 @@
+artifact_uri: file:D:/Coding/Python/finalitas/New folder (2)/Workflow-CI/MLProject/mlruns/826053729139433246/d46b6ca303ac48239df218be78cd474d/artifacts
+end_time: 1778600994990
+entry_point_name: ''
+experiment_id: '826053729139433246'
+lifecycle_stage: active
+run_id: d46b6ca303ac48239df218be78cd474d
+run_name: RandomForest_autolog
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1778600988594
+status: 3
+tags: []
+user_id: Mizan
