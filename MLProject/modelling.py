@@ -104,10 +104,16 @@ if __name__ == "__main__":
     print(f"Data dimuat. Train: {X_train.shape} | Test: {X_test.shape}")
 
     train_logistic_regression(X_train, X_test, y_train, y_test)
-    train_random_forest(X_train, X_test, y_train, y_test)
+    rf_model = train_random_forest(X_train, X_test, y_train, y_test)
+
+    # Simpan model ke path tetap agar bisa di-build jadi Docker image
+    import os
+    save_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'model_artifact')
+    mlflow.sklearn.save_model(rf_model, path=save_path)
+    print(f"Model artifact saved to: {save_path}")
 
     print("\n" + "=" * 55)
-    print("  SELESAI! Buka MLflow UI:")
+    print("  SELESAI! ...")
     print("  mlflow ui --port 5000")
     print("  http://127.0.0.1:5000")
     print("=" * 55)
