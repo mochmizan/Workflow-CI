@@ -1,4 +1,4 @@
-name: iris-classifier-ci
+name: iris_classifier
 
 conda_env: conda.yaml
 
