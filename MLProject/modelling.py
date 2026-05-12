@@ -48,7 +48,7 @@ def train_logistic_regression(X_train, X_test, y_train, y_test):
     print("\n[1/2] Training Logistic Regression...")
     mlflow.sklearn.autolog()
 
-    with mlflow.start_run(run_name="LogisticRegression_autolog"):
+    with mlflow.start_run(run_name="LogisticRegression_autolog", nested=True):
         model = LogisticRegression(max_iter=200, random_state=42)
         model.fit(X_train, y_train)
 
@@ -71,7 +71,7 @@ def train_random_forest(X_train, X_test, y_train, y_test):
     print("\n[2/2] Training Random Forest...")
     mlflow.sklearn.autolog()
 
-    with mlflow.start_run(run_name="RandomForest_autolog"):
+    with mlflow.start_run(run_name="RandomForest_autolog", nested=True):
         model = RandomForestClassifier(n_estimators=100, random_state=42)
         model.fit(X_train, y_train)
 
