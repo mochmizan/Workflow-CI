@@ -40,7 +40,7 @@ jobs:
         run: |
           echo "=== Model artifact contents ==="
           ls -lh MLProject/model_artifact/
-          cat MLProject/run_id.txt
+          cat MLProject/run_id.txt 2>/dev/null || echo "run_id.txt not found, skipping"
 
       # 7. Upload model sebagai GitHub Actions Artifact
       - name: Upload Model Artifact
