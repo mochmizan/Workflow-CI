@@ -108,7 +108,10 @@ if __name__ == "__main__":
 
     # Simpan model ke path tetap agar bisa di-build jadi Docker image
     import os
+    import shutil
     save_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'model_artifact')
+    if os.path.exists(save_path):
+        shutil.rmtree(save_path)
     mlflow.sklearn.save_model(rf_model, path=save_path)
     print(f"Model artifact saved to: {save_path}")
 
