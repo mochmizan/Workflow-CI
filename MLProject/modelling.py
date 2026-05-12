@@ -1,6 +1,6 @@
 """
 modelling.py  –  Kriteria 2 (Basic)
-Melatih model klasifikasi Iris menggunakan MLflow autolog.
+Melatih model klasifikasi Wine menggunakan MLflow autolog.
 Tracking UI disimpan lokal di ./mlruns
 
 Cara menjalankan (dari folder Membangun_model/):
@@ -24,10 +24,10 @@ if not os.environ.get('MLFLOW_RUN_ID'):
     mlflow.set_experiment(EXPERIMENT)
 
 # ─── Konfigurasi ───────────────────────────────────────────────────────────────
-TRAIN_PATH  = os.path.join('iris_preprocessing', 'train.csv')
-TEST_PATH   = os.path.join('iris_preprocessing', 'test.csv')
-TARGET_COL  = 'species'
-EXPERIMENT  = 'Iris_Classification_Basic'
+TRAIN_PATH  = os.path.join('wine_preprocessing', 'train.csv')
+TEST_PATH   = os.path.join('wine_preprocessing', 'test.csv')
+TARGET_COL  = 'quality_label'
+EXPERIMENT  = 'Wine_Classification_Basic'
 MLFLOW_URI  = 'mlruns'   # local
 
 # ─── Load Data ──────────────────────────────────────────────────────────────────

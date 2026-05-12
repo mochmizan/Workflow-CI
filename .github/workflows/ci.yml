@@ -23,13 +23,18 @@ jobs:
         with:
           python-version: '3.12.7'
 
-      # 3. Install semua dependencies (MLflow + project deps, versi latest)
+      # 3. Install semua dependencies
       - name: Install Dependencies
         run: |
           pip install --upgrade pip
           pip install mlflow==2.19.0 pandas numpy scikit-learn matplotlib seaborn
 
-      # 4. Jalankan MLflow Project (--env-manager=local = pakai env Python saat ini, TIDAK butuh conda)
+      # Copy data (simulasi karena ini mono-repo style)
+      - name: Setup Data
+        run: |
+          cp -r ../Eksperimen_SML_Moch-Mizan-Ghodafail/preprocessing/wine_preprocessing MLProject/ || echo "Salin data gagal"
+
+      # 4. Jalankan MLflow Project (--env-manager=local)
       - name: Run MLflow Project
         run: |
           cd MLProject
@@ -40,13 +45,13 @@ jobs:
         run: |
           echo "=== Model artifact contents ==="
           ls -lh MLProject/model_artifact/
-          cat MLProject/run_id.txt 2>/dev/null || echo "run_id.txt not found, skipping"
+          cat MLProject/run_id.txt 2>/dev/null || echo "run_id.txt not found"
 
       # 7. Upload model sebagai GitHub Actions Artifact
       - name: Upload Model Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: iris-model-${{ github.run_number }}
+          name: wine-model-${{ github.run_number }}
           path: |
             MLProject/model_artifact/
             MLProject/run_id.txt
@@ -54,7 +59,7 @@ jobs:
             MLProject/feature_importance.png
           retention-days: 90
 
-      # 8. Commit model artifact ke repository (GitHub storage)
+      # 8. Commit model artifact ke repository
       - name: Commit Model to Repository
         run: |
           git config --local user.email "action@github.com"
@@ -63,7 +68,7 @@ jobs:
           git add MLProject/run_id.txt || true
           git add MLProject/confusion_matrix.png || true
           git add MLProject/feature_importance.png || true
-          git diff --staged --quiet || git commit -m "ci: update model artifact [run #${{ github.run_number }}]"
+          git diff --staged --quiet || git commit -m "ci: update wine model artifact [run #${{ github.run_number }}]"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -75,7 +80,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # 10. Build Docker Image menggunakan mlflow models build-docker
+      # 10. Build Docker Image
       - name: Build Docker Image
         run: |
           cat > Dockerfile << 'EOF'
@@ -86,17 +91,17 @@ jobs:
           EXPOSE 5001
           CMD ["mlflow", "models", "serve", "-m", "/app/model", "-h", "0.0.0.0", "-p", "5001", "--no-conda"]
           EOF
-          docker build -t sansbo/iris-classifier:latest .
+          docker build -t sansbo/wine-classifier:latest .
 
-      # 11. Tag dengan run number
+      # 11. Tag image
       - name: Tag Docker Image
         run: |
-          docker tag sansbo/iris-classifier:latest \
-                     sansbo/iris-classifier:run-${{ github.run_number }}
+          docker tag sansbo/wine-classifier:latest \
+                     sansbo/wine-classifier:run-${{ github.run_number }}
 
       # 12. Push ke Docker Hub
       - name: Push to Docker Hub
         run: |
-          docker push sansbo/iris-classifier:latest
-          docker push sansbo/iris-classifier:run-${{ github.run_number }}
-          echo "Docker image pushed: sansbo/iris-classifier:latest"
+          docker push sansbo/wine-classifier:latest
+          docker push sansbo/wine-classifier:run-${{ github.run_number }}
+          echo "Docker image pushed: sansbo/wine-classifier:latest"
